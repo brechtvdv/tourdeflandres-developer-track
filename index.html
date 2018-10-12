@@ -130,6 +130,8 @@ button {
  - Informatie Vlaanderen</a></small>
 </body>
 <script>
+window.CP.PenTimer.MAX_TIME_IN_LOOP_WO_EXIT = 20000;
+
 // This library reads any serialization, and extract the Linked Data facts from it, which are returned.
 let ldfetch = new window.ldfetch();
 // This client can be driven by multiple hypermedia handlers
@@ -288,7 +290,7 @@ window.onload = async function() {
 	// First check pagination on entrypoint
 	let paginationControls = await getPaginationControls(entrypointMembers);
 	let page = paginationControls.first;
-	while (page) {
+	while (page != null) {
 		let members = await fetchMembers(page);
 		if (members['@graph'] && members['@graph'][0]['http://www.w3.org/ns/hydra/core#member']) {
 			// Append to view
