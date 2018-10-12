@@ -130,7 +130,7 @@ button {
  - Informatie Vlaanderen</a></small>
 </body>
 <script>
-window.CP.PenTimer.MAX_TIME_IN_LOOP_WO_EXIT = 20000;
+if (window.CP) window.CP.PenTimer.MAX_TIME_IN_LOOP_WO_EXIT = 20000;
 
 // This library reads any serialization, and extract the Linked Data facts from it, which are returned.
 let ldfetch = new window.ldfetch();
