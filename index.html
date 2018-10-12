@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+<script src="https://cdn.jsdelivr.net/npm/generic-hypermedia-api-client@0.0.1/dist/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clusterize.js/0.18.0/clusterize.min.js"></script>
+<!--<script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>-->
+<!-- <script src="https://smart.flanders.be/assets/ldfetch-1.0-alpha.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/ldfetch@1.0.9-alpha/dist/main.js"></script>
+<link rel="stylesheet" type="text/css" href="//dij151upo6vad.cloudfront.net/2.latest/css/vlaanderen-ui-corporate.css">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/clusterize.js/0.18.0/clusterize.min.css">
+</head>
+<style>
+tr:nth-of-type(even) {
+    background: #F9F9F9;
+}
+tr {
+    display: table-row;
+    vertical-align: inherit;
+    border-color: inherit;
+}
+table {
+	width: 100%;
+	text-align: center;
+}
+td {
+	width: 49%;
+}
+
+button {
+    visibility: hidden; /* Hidden by default */
+
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    /*margin: 4px 2px;*/
+    cursor: pointer;
+}
+
+#snippet {
+    visibility: hidden; /* Hidden by default */
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+</style>
+<body>
+<h2>Generieke client voor hypermedia API's</h2>
+<strong>Deze applicatie toont een lijst van objecten door paginering controls te volgen.</strong> -<a href="https://github.com/Informatievlaanderen/generieke-hypermedia-api">read more (Dutch)</a>
+<p style="font-style: italic;">Klik op een object om een invulformulier te zien op basis van bijhorend OSLO <a href="https://data.vlaanderen.be/doc/applicatieprofiel/organisatie-basis/">applicatieprofiel</a>.<p>
+
+<div id="scrollArea" class="clusterize-scroll">
+  <div id="contentArea" class="clusterize-content">
+  </div>
+</div>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+	<!-- Modal content -->
+	<div class="modal-content">
+		<span class="close">&times;</span>
+		<div class="clusterize">
+			<table style="margin-bottom: 30px;">
+				<thead>
+					<tr><td><div class="progress-parent"><span class="progress-bar" style="width: 0.45995400459954%;"></span><span class="progress-content"><b>Eigenschap</b></span></div></td><td><div class="progress-parent"><span class="progress-bar"></span><span class="progress-content">Waarde</span></div></td></tr>
+				</thead>
+			</table>
+			<div id="scrollAreaModal" class="clusterize-scroll">
+				<table>
+					<tbody id="contentAreaModal" class="clusterize-content">
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div style="text-align: center; margin-top: 50px;">
+		<button onclick="onClickGenereer()">Genereer Linked Data snippet</button>
+		</div>
+
+		<code id="snippet"></code><br>
+	</div>
+</div>
+
+
+
+ <svg style="display: inline-block;  vertical-align: middle; height: 40px;  width: 25px;  margin: 0;  fill: #333332;">
+    
+  <path data-name="Logo Vlaanderen" d="M19.61 16c-1.08-.82-1.59 0-2.27 0s-1.12-1-1.56-.75c-.85.43.34 2 .86 2.27a12.51 12.51 0 0 0 1.18.59 1.72 1.72 0 0 1 1 1.55 3 3 0 0 1 0 .75c-.31 1.32-2.64 2.52-4 1.61a3 3 0 0 1-1.4-2c-.36-1.73-1.62-3-2-4.7-.25-1-.43-2.12-.7-3.15S10.17 10 9.94 9A27.44 27.44 0 0 0 9 5.92C7.71 2.61 7.14 2.85 7.14 2.85s.46.92 2.15 9A47.8 47.8 0 0 0 10.42 17c.16.42.44 1.32.62 1.72.54 1.16 2 2.92 2.05 4.51.05.92.16 1.68.18 2.37a7.37 7.37 0 0 0 .24 1.4c.35 1 3.14 4.09 6.1 4.09v-2.41a10.88 10.88 0 0 1-5.79-1.82 6.37 6.37 0 0 1 .35-1.7 2.78 2.78 0 0 1 2.39-1.94 17.91 17.91 0 0 1 3 .31V16zM6.82 7.36c-.11 1.77-2.87 4.2-3.73 5.75A11.43 11.43 0 0 0 2 15.95a7.53 7.53 0 0 0 .62 4.67c.91 2.18-.12 3 .59 2.54.88-.72.75-2.39.68-3.43a14.77 14.77 0 0 1 0-2.82 13.29 13.29 0 0 1 2.41-5.33 4.84 4.84 0 0 0 .52-4.22m.56 5s.29 1.4-1 5c-3.26 9.45 3 10.34 4.74 12.56 0 0 .69-1-2.14-4-1-1.12-2-3.6-1.15-7.15 1.17-5.13-.5-6.39-.5-6.39M1.21 6.2A4.53 4.53 0 0 1 1 4.7c.2-2.22 2.23-3.12 2.73-3.45A2.7 2.7 0 0 0 4.76 0a3 3 0 0 1-1.21 3.67A6.06 6.06 0 0 0 1.21 6.2m5.11-2.15c.11.23 1 1.45-2.48 4.27s-2.36 4.84-2.36 4.84-3.66-2 .56-5.53 3.35-4.2 3.35-4.2a1.05 1.05 0 0 1 .93.63m4.46 1.08c.59.08 1 1.92 2.35 2.32 1 .29 2.08.13 2.32.74a.52.52 0 0 0 .37.92c.39-1.12.58-5.24-5.03-3.98zm1.86.86c0-.13.12 0 .27-.12a1.66 1.66 0 0 1 .59-.48 1 1 0 0 1 .62 0c.12 0 0 .33 0 .4s-.74-.09-.74.32c0 .67.91 0 1.38 0 .23 1.64-2.48 1.19-2.08-.16z"></path></svg>
+<small>This demo is part of <a href="https://overheid.vlaanderen.be/producten-diensten/OSLO2">OSLO&#178;
+ - Informatie Vlaanderen</a></small>
+</body>
+<script>
+// This library reads any serialization, and extract the Linked Data facts from it, which are returned.
+let ldfetch = new window.ldfetch();
+// This client can be driven by multiple hypermedia handlers
+let client = new window.ghaclient.ApiClient(null);
+
+let clusterize = new Clusterize({
+	  scrollId: 'scrollArea',
+	  contentId: 'contentArea'
+	});
+
+let clusterizeModal = new Clusterize({
+	  scrollId: 'scrollAreaModal',
+	  contentId: 'contentAreaModal'
+	});
+let modal = document.getElementById('myModal');
+
+let metadataObject = {}; // JSON met metadata van het object die aangeklikt is
+
+function getPaginationControls(_url) {
+	return new Promise(resolve => {
+		let client = new window.ghaclient.ApiClient(null);
+		const paginationHandler = new window.ghaclient.PaginationHandler(
+        	{
+                pagedataCallback: (pagedata) => resolve(pagedata),
+                subjectStream: client.subjectStream
+            }
+        );
+		// Fetch pagination
+		client.fetch(_url, [paginationHandler]);
+	});
+}
+
+function getCRUDControls(url) {
+	return new Promise(resolve => {
+		const crud = new window.ghaclient.CRUDHandler({
+        crudCallback: (crud) => { 
+        	console.log(crud);
+        	resolve(crud); }
+		});
+		// Fetch CRUD
+		client.fetch(url, [crud]);
+	});
+}
+
+// Returns a list of members in a collection located at _url
+async function fetchMembers(_url) {
+	let response = await ldfetch.get(_url);
+
+	let frame =  {
+		"@id": {},
+		"http://www.w3.org/ns/hydra/core#member": {
+			"@id": {},
+			"@type": {}
+		}
+	};
+
+	return await ldfetch.frame(response.triples, frame);
+}
+
+// Get metadata about _uri in the document located at _url
+async function dereference(_url, _uri) {
+	// Data.vlaanderen.be subject pages return Linked Data when turtle is asked
+	let ldf = new window.ldfetch({ headers: {'Accept': 'text/turtle'}}); // Otherwise JSON is used
+	//let response = await ldf.get('https://cors-anywhere.herokuapp.com/' + uri, {'Accept': 'text/turtle'});
+	let response = await ldf.get(_url, {'Accept': 'text/turtle'});
+    // Frame our response according to get the type
+    let frame =  {
+				  "@id": _uri
+  	};
+
+	return await ldf.frame(response.triples, frame); 
+}
+
+async function memberClicked() {
+	clusterizeModal.update(['<tr><td><div class="progress-parent"><span class="progress-bar" style="width: 0.45995400459954%;"></span><span class="progress-content"><b>' + 'Dereferencing the organisation...' + '</b></span></div></td><td><div class="progress-parent"><span class="progress-bar"></span><span class="progress-content"></span></div></td></tr>']);
+
+	let uri = event.target.id;
+	let isPrimaryTopicOf = event.target.getAttribute('data-isprimarytopicof');
+
+	// Show the modal
+    modal.style.display = "block";
+
+    // Fetch data of this member
+	metadataObject = await dereference(isPrimaryTopicOf, uri);
+
+	// Fetch CRUD operations of this document
+	let crud = await getCRUDControls(isPrimaryTopicOf);
+
+	let expects;
+	for (var i = 0; i < crud.length; i++) {
+		if (crud[i].method === 'PUT') expects = crud[i].expects;
+	}
+
+	let expectsShape = await dereference('https://cors-anywhere.herokuapp.com/' + expects, expects)
+
+	if (expectsShape["@graph"] && expectsShape["@graph"][0]) {
+		let rows = [];
+		for(let p in expectsShape["@graph"][0]['http://www.w3.org/ns/shacl#property']) {
+			let property = expectsShape["@graph"][0]['http://www.w3.org/ns/shacl#property'][p];
+			// Only simple values will be shown
+			if (property['http://www.w3.org/ns/shacl#datatype']) {
+				let name = property['http://www.w3.org/ns/shacl#name']['@id'].substring(1); // no datatype added with name, so is seen as blank node
+				let propertyUri = property['http://www.w3.org/ns/shacl#path']['@id'];
+				let propertyValue = metadataObject["@graph"][0][propertyUri] ? metadataObject["@graph"][0][propertyUri]["@value"] : '';
+				let row = '<tr><td data-propertyuri="' + propertyUri + '"><div class="progress-parent"><span class="progress-bar" style="width: 0.45995400459954%;"></span><span class="progress-content"><b>' + name + '</b></span></div></td><td data-propertytype="' + property['http://www.w3.org/ns/shacl#datatype']["@id"] + '"><div class="progress-parent"><span class="progress-bar"></span><span class="progress-content"><input type="text" name="' +  name + '" value="' + propertyValue + '"></span></div></td></tr>';
+				rows.push(row);
+			}
+		}
+
+		clusterizeModal.update(rows);
+		document.getElementsByTagName('button')[0].style.visibility = 'visible';
+	}
+}
+
+async function initModal() {
+	// When the user clicks anywhere outside of the modal, close it
+	window.onclick = function(event) {
+	    if (event.target == modal) {
+	        modal.style.display = "none";
+        	clusterizeModal.update([]); // make it empty again
+	    }
+	}
+	// Get the <span> element that closes the modal
+	let span = document.getElementsByClassName("close")[0];
+	// When the user clicks on <span> (x), close the modal
+	span.onclick = function() {
+	    modal.style.display = "none";
+		clusterizeModal.update([]); // make it empty again
+	}
+}
+
+function onClickGenereer() {
+	// Fetch from HTML
+	// First row is header
+	for (var i = 1; i < document.getElementById('myModal').getElementsByTagName('tr').length; i++) {
+		let row = document.getElementById('myModal').getElementsByTagName('tr')[i];
+		let predicate = row.getElementsByTagName('td')[0].getAttribute('data-propertyuri');
+		let object = row.getElementsByTagName('input')[0].value;
+		let type = row.getElementsByTagName('td')[1].getAttribute('data-propertytype');
+		if (object != '') metadataObject["@graph"][0][predicate] = {
+			"@value": object,
+			"@type": type
+		}
+	}		
+	document.getElementById('snippet').innerHTML = JSON.stringify(metadataObject);
+	document.getElementById('snippet').style.visibility = 'visible';
+}
+
+window.onload = async function() {
+	// init modal
+	initModal();
+
+	///// Retrieving members
+	let entrypointMembers = 'https://lodi.ilabt.imec.be/oslo-api/organizations';
+	// First check pagination on entrypoint
+	let paginationControls = await getPaginationControls(entrypointMembers);
+	let page = paginationControls.first;
+	while (page) {
+		let members = await fetchMembers(page);
+		if (members['@graph'] && members['@graph'][0]['http://www.w3.org/ns/hydra/core#member']) {
+			// Append to view
+	    	for (let i = 0; i < members['@graph'][0]['http://www.w3.org/ns/hydra/core#member'].length; i++) {
+	    		let member = members['@graph'][0]['http://www.w3.org/ns/hydra/core#member'][i];
+	    		let uri = member['@id'];
+	    		let prefLabel = member['http://www.w3.org/2004/02/skos/core#prefLabel'] ? member['http://www.w3.org/2004/02/skos/core#prefLabel']['@value'] : '';
+	    		let isPrimaryTopicOf = member['http://xmlns.com/foaf/0.1/isPrimaryTopicOf'] ? member['http://xmlns.com/foaf/0.1/isPrimaryTopicOf']['@id'] : null;
+	    		if (prefLabel === '' && isPrimaryTopicOf) {
+	    			// try finding preflabel in subject page
+		    		let metadata = await dereference(isPrimaryTopicOf, uri);
+		    		if (metadata['@graph'][0]['http://www.w3.org/2004/02/skos/core#prefLabel']) prefLabel = metadata['@graph'][0]['http://www.w3.org/2004/02/skos/core#prefLabel']['@value'];
+				}
+				let prefLabelHtml = '<div id="' + uri + '" data-isPrimaryTopicOf="' + isPrimaryTopicOf + '" style="cursor: pointer;" onclick="memberClicked()">' + prefLabel + '</div>';
+				clusterize.append([prefLabelHtml]);
+	    	}
+	    }
+
+		paginationControls = await getPaginationControls(page);
+		page = paginationControls.next;
+	}
+};
+</script>
+</html>
